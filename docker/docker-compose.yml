@@ -1,0 +1,16 @@
+version: '3'
+services:
+  ros:
+    hostname: ros-dev
+    build: .
+    ports:
+      - "5022:22"
+    volumes:
+      - /etc/passwd:/etc/passwd
+      - /etc/shadow:/etc/shadow
+      - /etc/group:/etc/group
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ../../:${HOME}/work/
+      - ${HOME}/.ssh:${HOME}/.ssh
+      - ${HOME}/.bashrc:${HOME}/.bashrc
+    entrypoint: /sbin/sshd -D
