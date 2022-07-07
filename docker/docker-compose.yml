@@ -14,3 +14,4 @@ services:
       - ${HOME}/.ssh:${HOME}/.ssh
       - ${HOME}/.bashrc:${HOME}/.bashrc
     entrypoint: /sbin/sshd -D
+    restart: always

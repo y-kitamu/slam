@@ -32,10 +32,14 @@ RUN /bin/bash -c 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/sh
 RUN apt-get update && apt-get upgrade -y
 RUN apt-mark unhold libsystemd0
 RUN apt-get install ros-humble-desktop -y
+#
+RUN apt-get install python3-rosdep && rosdep init && rosdep update
+RUN apt-get install python3-colcon-common-extensions -y
 
 # install utilities
-RUN apt-get install sudo -y
+RUN apt-get install sudo ccls -y
 
 ARG display
+RUN echo "export DISPLAY=${display}" >> /etc/profile
 ENV DISPLAY=${display}
 ENV DEBIAN_FRONTEND=newt
