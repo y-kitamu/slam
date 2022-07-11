@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: source docker/build_docker.sh
+      run: cd docker && source build_docker.sh
     - name: Push the Docker image to dockerhub
       env:
        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
