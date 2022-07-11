@@ -20,5 +20,5 @@ jobs:
       env:
        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
-       docker login -u arumatik -p ${{ DOCKERHUB_TOKEN }}
+       docker login -u arumatik -p $DOCKERHUB_TOKEN
        docker push arumatik/rosbase
