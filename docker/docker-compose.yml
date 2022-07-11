@@ -3,6 +3,7 @@ services:
   ros:
     hostname: ros-dev
     build: .
+    image: arumatik/rosbase
     ports:
       - "5022:22"
     volumes:
@@ -15,3 +16,7 @@ services:
       - ${HOME}/.bashrc:${HOME}/.bashrc
     entrypoint: /sbin/sshd -D
     restart: always
+
+  orbslam:
+    hostname: orbslam
+    image: arumatik/orbslam
