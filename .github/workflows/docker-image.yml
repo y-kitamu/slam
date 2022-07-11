@@ -14,12 +14,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup Environment
-      env:
-        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the Docker image
       run: source docker/build_docker.sh
     - name: Push the Docker image to dockerhub
+      env:
+       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
        docker login -u arumatik -p ${{ DOCKERHUB_TOKEN }}
        docker push arumatik/rosbase
