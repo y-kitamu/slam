@@ -1,1 +1,21 @@
-FROM
+FROM arumatik/rosbase:latest
+
+# opencv
+ARG OPENCV_VERSION=4.6.0
+WORKDIR /opt
+RUN apt-get update && apt-get install -y unzip
+RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/$OPENCV_VERSION.zip && unzip opencv.zip
+RUN mkdir -p build && cd build && cmake ../opencv-$OPENCV_VERSION && make -j4 && make install
+WORKDIR /
+
+# Pangolin
+WORKDIR /opt
+RUN apt-get instasll -y git libgl1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols libegl1-mesa-dev\
+    libc++-dev libglew-dev libeigen3-dev cmake g++ ninja-build libjpeg-dev libpng-dev\
+    libavcodec-dev libavutil-dev libavformat-dev libswscale-dev libavdevice-dev
+RUN git clone --recursive https://github.com/stevenlovegrove/Pangolin.git
+RUN cd Pangolin && mkdir build && cd build && cmake .. && make -j4 && make install
+WORKDIR /
+
+# eigne
+RUN apt-get install -y libeigen3-dev

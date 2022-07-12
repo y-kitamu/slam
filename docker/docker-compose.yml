@@ -19,4 +19,7 @@ services:
 
   orbslam:
     hostname: orbslam
+    build:
+      context: .
+      dockerfile: Dockerfile.orbslam
     image: arumatik/orbslam
