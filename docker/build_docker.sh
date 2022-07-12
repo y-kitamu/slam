@@ -11,6 +11,7 @@ DISP=${DISPLAY}
 echo "USER_ID = ${USER_ID}, GROUP_ID = ${GROUP_ID}, USER = ${USER}, DISP = ${DISP}"
 
 cd ${SCRIPT_DIR}
+echo "cd ${SCRIPT_DIR}"
 docker-compose build \
                --build-arg uid=${USER_ID} --build-arg gid=${GROUP_ID} --build-arg user=${USER} \
                --build-arg display=${DISP}

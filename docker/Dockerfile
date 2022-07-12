@@ -33,7 +33,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-mark unhold libsystemd0
 RUN apt-get install ros-humble-desktop -y
 #
-RUN apt-get install python3-rosdep && rosdep init && rosdep update
+RUN apt-get update && apt-get install python3-rosdep -y && rosdep init && rosdep update
 RUN apt-get install python3-colcon-common-extensions -y
 
 # install utilities
