@@ -12,9 +12,11 @@ services:
       - /etc/group:/etc/group
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ../../:${HOME}/work/
-      - ${HOME}/.ssh:${HOME}/.ssh
-      - ${HOME}/.bashrc:${HOME}/.bashrc
-    entrypoint: /sbin/sshd -D
+      - ./:${HOME}/docker
+      - ${HOME}/dotfiles:${HOME}/dotfiles
+    environment:
+      - TARGET_USER=${USER}
+    entrypoint: ${HOME}/docker/entrypoint.sh
     restart: always
 
   orbslam:
@@ -23,3 +25,15 @@ services:
       context: .
       dockerfile: Dockerfile.orbslam
     image: arumatik/orbslam
+    ports:
+      - "5023:22"
+    volumes:
+      - /etc/passwd:/etc/passwd
+      - /etc/shadow:/etc/shadow
+      - /etc/group:/etc/group
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ../../:${HOME}/work/
+      - ${HOME}/.ssh:${HOME}/.ssh
+      - ${HOME}/.bashrc:${HOME}/.bashrc
+    entrypoint: /sbin/sshd -D
+    restart: always
