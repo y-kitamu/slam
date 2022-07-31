@@ -36,8 +36,12 @@ RUN apt-get install ros-humble-desktop -y
 RUN apt-get update && apt-get install python3-rosdep -y && rosdep init && rosdep update
 RUN apt-get install python3-colcon-common-extensions -y
 
+#install clang
+RUN apt-get install clang-13 lldb-13 lld-13 -y &&\
+    ln -s /usr/bin/clang++-13 /usr/bin/clang++ &&\
+    ln -s /usr/bin/clang-13 /usr/bin/clang
 # install utilities
-RUN apt-get install sudo ccls -y
+RUN apt-get install sudo ccls ninja-build -y
 
 ARG display
 RUN echo "export DISPLAY=${display}" >> /etc/profile
