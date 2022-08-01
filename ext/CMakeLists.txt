@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.20)
+
+set(CMAKE_C_COMPILER /usr/bin/clang)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+# set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
+
+project(ExternalLibraries VERSION 0.1 LANGUAGES CXX) # CUDA)
+message(STATUS "ExternalLibraries: ${VERSION}")
+
+set(CMAKE_CXX_STANDARD 20)
+
+set(CMAKE_CXX_FLAGS "-Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_XCC_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(EXTERNAL_BUILD_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/build)
+set(EXTERNAL_INSTALL_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/install)
+
+message(STATUS "EXTERNAL_INSTALL_ROOT_DIR = ${EXTERNAL_INSTALL_ROOT_DIR}")
+message(STATUS "EXTERNAL_BUILD_ROOT_DIR = ${EXTERNAL_BUILD_ROOT_DIR}")
+
+include(ExternalProject)
+
+ExternalProject_Add(
+  Pangolin
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Pangolin
+  BINARY_DIR ${EXTERNAL_BUILD_ROOT_DIR}/Pangolin
+  GIT_REPOSITORY https://github.com/stevenlovegrove/Pangolin.git
+  GIT_TAG v0.8
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_ROOT_DIR}/Pangolin
+)

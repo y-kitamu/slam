@@ -41,7 +41,7 @@ RUN apt-get install clang-13 lldb-13 lld-13 -y &&\
     ln -s /usr/bin/clang++-13 /usr/bin/clang++ &&\
     ln -s /usr/bin/clang-13 /usr/bin/clang
 # install utilities
-RUN apt-get install sudo ccls ninja-build -y
+RUN apt-get update && apt-get install sudo ccls ninja-build git -y
 
 ARG display
 RUN echo "export DISPLAY=${display}" >> /etc/profile
