@@ -1,3 +1,9 @@
 [submodule "ext/Pangolin"]
 	path = ext/Pangolin
 	url = https://github.com/stevenlovegrove/Pangolin.git
+[submodule "ext/argparse"]
+	path = ext/argparse
+	url = https://github.com/p-ranav/argparse.git
+[submodule "ext/opencv"]
+	path = ext/opencv
+	url = https://github.com/opencv/opencv.git

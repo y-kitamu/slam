@@ -33,7 +33,7 @@ if (${BUILD_SNIPPETS})
     WORKING_DIRECTORY ${EXTERNAL_BUILD_DIR}
   )
   execute_process_with_output(
-    COMMAND ninja
+    COMMAND ninja -j 8
     WORKING_DIRECTORY ${EXTERNAL_BUILD_DIR}
   )
 endif()
@@ -42,13 +42,27 @@ endif()
 set(EXTERNAL_LIBS "" CACHE INTERNAL "")
 # eigen
 find_package(Eigen3 REQUIRED)
-include_directories(AFTER ${EIGEN3_INCLUDE_DIR})
+# opencv
+set(OpenCV_ROOT ${EXTERNAL_BUILD_DIR}/install)
+find_package(OpenCV REQUIRED)
+
+include_directories(AFTER
+  ${EIGEN3_INCLUDE_DIR}
+  ${OpenCV_INCLUDE_DIRS}
+  ${EXTERNAL_DIR}/argparse/include
+)
+
+set(EXTERNAL_LIBS
+  ${EXTERNAL_LIBS}
+  ${OpenCV_LIBS}
+  CACHE INTERNAL "")
 
 if (${BUILD_SNIPPETS})
   # opengl
   find_package(OpenGL REQUIRED)
   find_package(GLEW REQUIRED)
   # Pangolin
+  set(Pangolin_ROOT ${EXTERNAL_BUILD_DIR}/install)
   find_package(Pangolin REQUIRED)
 
   set(EXTERNAL_LIBS
@@ -61,7 +75,7 @@ if (${BUILD_SNIPPETS})
   include_directories(AFTER
     ${OPENGL_INCLUDE_DIR}
     ${GLEW_INCLUDE_DIR}
-    ${EXTERNAL_BUILD_DIR}/install/Pangolin/include)
+  )
 endif()
 
 message(STATUS "External libs : ${EXTERNAL_LIBS}")

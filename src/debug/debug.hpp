@@ -7,6 +7,4 @@
 #ifndef DEBUG_HPP__
 #define DEBUG_HPP__
 
-
-
 #endif // DEBUG_HPP__

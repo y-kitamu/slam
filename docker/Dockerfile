@@ -43,6 +43,26 @@ RUN apt-get install clang-13 lldb-13 lld-13 -y &&\
 # install utilities
 RUN apt-get update && apt-get install sudo ccls ninja-build git -y
 
+# install pangolin deps
+RUN apt-get update && apt-get install -y\
+    libgl1-mesa-dev\
+    libwayland-dev\
+    libxkbcommon-dev\
+    wayland-protocols\
+    libegl1-mesa-dev\
+    libc++-dev\
+    libglew-dev\
+    libeigen3-dev\
+    cmake\
+    g++\
+    libjpeg-dev\
+    libpng-dev\
+    libavcodec-dev\
+    libavutil-dev\
+    libavformat-dev\
+    libswscale-dev\
+    libavdevice-dev
+
 ARG display
 RUN echo "export DISPLAY=${display}" >> /etc/profile
 ENV DISPLAY=${display}
