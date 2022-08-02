@@ -7,3 +7,6 @@
 [submodule "ext/opencv"]
 	path = ext/opencv
 	url = https://github.com/opencv/opencv.git
+[submodule "ext/fmt"]
+	path = ext/fmt
+	url = https://github.com/fmtlib/fmt.git
