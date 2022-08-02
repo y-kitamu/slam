@@ -8,6 +8,7 @@
 #define SLAM_HPP__
 
 
-#include "debug/dbug.hpp"
+#include "debug/debug.hpp"
+#include "extension/extension.hpp"
 
-#endif // SLAM_HPP__
+#endif  // SLAM_HPP__

@@ -20,6 +20,10 @@
 #include <pangolin/gl/glvbo.h>
 #include <argparse/argparse.hpp>
 #include <opencv2/opencv.hpp>
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+
+#include "slam.hpp"
 
 namespace fs = std::filesystem;
 
@@ -58,7 +62,18 @@ void sample(const cv::Mat& image) {
 
     pangolin::GlTexture imageTexture(image.cols, image.rows, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
 
+    // imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+    ImGui_ImplOpenGL3_Init("#version 440");
+    ImGui_ImplPangolin_Init();
+    ImGui::StyleColorsDark();
+
     glClearColor(0.64f, 0.5f, 0.81f, 0.0f);
+
+    bool show_demo_window = true;
 
     while (!pangolin::ShouldQuit()) {
         // Clear the window
@@ -71,6 +86,11 @@ void sample(const cv::Mat& image) {
 
         glBindVertexArray(0);
         vbo.Unbind();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplPangolin_NewFrame();
+        ImGui::NewFrame();
+        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
         pangolin::FinishFrame();
     }

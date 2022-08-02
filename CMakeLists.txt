@@ -17,15 +17,22 @@ option(BUILD_SNIPPETS "Build snippets" ON)
 
 include(cmake/utility.cmake)
 
-# build external deps
+### build external deps
 message(STATUS "Add external dependencies...")
 set(EXTERNAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext)
 set(EXTERNAL_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/ext)
-
+# reset cache
 execute_process_with_output(
   COMMAND rm -rf CMake*
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/ext
 )
+# fmt
+add_subdirectory(ext/fmt)
+# imgui
+file(GLOB IMGUI_FILES "${EXTERNAL_DIR}/imgui/imgui*.cpp")
+add_library(imgui SHARED
+  ${IMGUI_FILES}
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/imgui/backends/imgui_impl_opengl3.cpp)
 
 if (${BUILD_SNIPPETS})
   execute_process_with_output(
@@ -38,22 +45,27 @@ if (${BUILD_SNIPPETS})
   )
 endif()
 
-# add external deps to the project
+### add external deps to the project
 set(EXTERNAL_LIBS "" CACHE INTERNAL "")
 # eigen
 find_package(Eigen3 REQUIRED)
 # opencv
 set(OpenCV_ROOT ${EXTERNAL_BUILD_DIR}/install)
 find_package(OpenCV REQUIRED)
-
+#
 include_directories(AFTER
   ${EIGEN3_INCLUDE_DIR}
   ${OpenCV_INCLUDE_DIRS}
   ${EXTERNAL_DIR}/argparse/include
+  ${EXTERNAL_DIR}/fmt/include
+  ${EXTERNAL_DIR}/imgui
+  ${EXTERNAL_DIR}/imgui/backends
 )
-
+#
 set(EXTERNAL_LIBS
   ${EXTERNAL_LIBS}
+  fmt::fmt
+  imgui
   ${OpenCV_LIBS}
   CACHE INTERNAL "")
 
@@ -75,23 +87,25 @@ if (${BUILD_SNIPPETS})
   include_directories(AFTER
     ${OPENGL_INCLUDE_DIR}
     ${GLEW_INCLUDE_DIR}
+    ${EXTERNAL_BUILD_DIR}/install/Pangolin/include
   )
 endif()
 
 message(STATUS "External libs : ${EXTERNAL_LIBS}")
 
- # create library
+### create library
 message(STATUS "Create library...")
 set(LIBRARIES "" CACHE INTERNAL "")
+include_directories(AFTER ${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(src)
 
-# create executables
+### create executables
 message(STATUS "Create executables...")
 if (${BUILD_SNIPPETS})
   add_subdirectory(snippets)
 endif()
 
-# test
+### test
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
   message(STATUS "Create test executables...")
   include(test)
