@@ -11,9 +11,10 @@
 #include <pangolin/display/display.h>
 #include "imgui.h"
 
+#include "debug/debug.hpp"
+
 
 namespace {
-
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 using std::chrono::system_clock;
@@ -64,6 +65,7 @@ bool ImGui_ImplPangolin_Init() {
 
 
 void ImGui_ImplPangolin_Shutdown() {
+    logd("ImGui_ImplPangolin_Shutdown");
     ImGui_ImplPangolin_Data* bd = ImGui_ImplPangolin_GetBackendData();
     IM_ASSERT(bd != NULL && "No platform backend to shutdown, or already shutdown?");
     ImGuiIO& io = ImGui::GetIO();

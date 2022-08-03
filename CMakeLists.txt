@@ -6,14 +6,17 @@ set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 
 project(Slam VERSION 0.1 LANGUAGES CXX) # CUDA)
 
+option(BUILD_SNIPPETS "Build snippets" ON)
+
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_XCC_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-option(BUILD_SNIPPETS "Build snippets" ON)
+if (BUILD_SNIPPETS)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lprofiler -ltcmalloc")
+endif()
 
 include(cmake/utility.cmake)
 
@@ -76,12 +79,15 @@ if (${BUILD_SNIPPETS})
   # Pangolin
   set(Pangolin_ROOT ${EXTERNAL_BUILD_DIR}/install)
   find_package(Pangolin REQUIRED)
+  # glog
+  find_package(glog REQUIRED)
 
   set(EXTERNAL_LIBS
     ${EXTERNAL_LIBS}
     ${OPENGL_LIBRARIES}
     ${GLEW_LIBRARY}
     ${Pangolin_LIBRARY}
+    glog::glog
     CACHE INTERNAL "")
   #
   include_directories(AFTER

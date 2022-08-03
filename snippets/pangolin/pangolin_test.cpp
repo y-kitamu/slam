@@ -13,6 +13,7 @@
 #endif
 #include <filesystem>
 
+#include <glog/logging.h>
 #include <pangolin/display/display.h>
 #include <pangolin/gl/gl.h>
 #include <pangolin/gl/gldraw.h>
@@ -97,6 +98,11 @@ void sample(const cv::Mat& image) {
 }
 
 int main(int argc, char** argv) {
+    // google glogの初期化
+    google::InitGoogleLogging(argv[0]);
+    //クラッシュ時にスタックトレースを吐くうシグナルハンドラを設定
+    google::InstallFailureSignalHandler();
+
     argparse::ArgumentParser parser("Pangolin test");
     parser.add_argument("-i", "--image")
         .help("Input Image")

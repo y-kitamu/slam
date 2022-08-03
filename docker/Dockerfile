@@ -63,6 +63,20 @@ RUN apt-get update && apt-get install -y\
     libswscale-dev\
     libavdevice-dev
 
+# install profilers
+WORKDIR /opt
+RUN git clone https://github.com/gperftools/gperftools.git &&\
+    cd gperftools &&\
+    ./autogen.sh &&\
+    ./configure &&\
+    make &&\
+    make install
+RUN apt-get install -y kcachegrind
+RUN git clone https://github.com/google/glog.git &&\
+    cd glog &&\
+    cmake -S . -B build -G "Unix Makefiles" &&\
+    cmake --build build --target install
+
 ARG display
 RUN echo "export DISPLAY=${display}" >> /etc/profile
 ENV DISPLAY=${display}
