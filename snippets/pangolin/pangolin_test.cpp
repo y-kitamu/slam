@@ -15,6 +15,7 @@
 
 #include <glog/logging.h>
 #include <pangolin/display/display.h>
+#include <pangolin/display/view.h>
 #include <pangolin/gl/gl.h>
 #include <pangolin/gl/gldraw.h>
 #include <pangolin/gl/glsl.h>
@@ -40,7 +41,9 @@ void sample(const cv::Mat& image) {
     prog.AddShaderFromFile(pangolin::GlSlVertexShader, vert_shader.string());
     prog.AddShaderFromFile(pangolin::GlSlFragmentShader, frag_shader.string());
     prog.Link();
-    prog.Bind();
+
+    pangolin::View& image_view = pangolin::Display("viewport").SetBounds(0.2f, 0.8f, 0.2f, 0.8f, 1.0);
+    pangolin::View& window_view = pangolin::Display("viewport").SetBounds(0.0f, 1.0f, 0.0f, 1.0f, 1.0);
 
     pangolin::GlBuffer vbo(pangolin::GlArrayBuffer,
                            std::vector<Eigen::Matrix<float, 5, 1>>{{-0.5f, -0.5f, 0.0f, 0.0f, 0.0f},
@@ -67,9 +70,8 @@ void sample(const cv::Mat& image) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    (void)io;
     ImGui_ImplOpenGL3_Init("#version 440");
-    ImGui_ImplPangolin_Init();
+    ImGui_ImplPangolin_Init(500, 500);
     ImGui::StyleColorsDark();
 
     glClearColor(0.64f, 0.5f, 0.81f, 0.0f);
@@ -79,6 +81,10 @@ void sample(const cv::Mat& image) {
     while (!pangolin::ShouldQuit()) {
         // Clear the window
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        image_view.Activate();
+
+        prog.Bind();
         imageTexture.Upload(image.data, GL_RGB, GL_UNSIGNED_BYTE);
 
         glBindVertexArray(vao);
@@ -87,14 +93,33 @@ void sample(const cv::Mat& image) {
 
         glBindVertexArray(0);
         vbo.Unbind();
+        prog.Unbind();
 
+        window_view.Activate();
+
+        // imgui
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplPangolin_NewFrame();
         ImGui::NewFrame();
-        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+        {
+            if (show_demo_window) {
+                ImGui::ShowDemoWindow(&show_demo_window);
+            }
 
+            ImGui::Begin("Hello, world!");
+            ImGui::Text("This is some useful text.");
+            ImGui::End();
+        }
+
+        // render
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         pangolin::FinishFrame();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplPangolin_Shutdown();
+    ImGui::DestroyContext();
 }
 
 int main(int argc, char** argv) {

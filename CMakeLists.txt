@@ -7,6 +7,7 @@ set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 project(Slam VERSION 0.1 LANGUAGES CXX) # CUDA)
 
 option(BUILD_SNIPPETS "Build snippets" ON)
+option(REBUILD_EXTERNAL "Rebuild external dependencies" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -38,14 +39,17 @@ add_library(imgui SHARED
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/imgui/backends/imgui_impl_opengl3.cpp)
 
 if (${BUILD_SNIPPETS})
-  execute_process_with_output(
-    COMMAND cmake -GNinja ${EXTERNAL_DIR}
-    WORKING_DIRECTORY ${EXTERNAL_BUILD_DIR}
-  )
-  execute_process_with_output(
-    COMMAND ninja -j 8
-    WORKING_DIRECTORY ${EXTERNAL_BUILD_DIR}
-  )
+  # TODO : gitがおかしくなるのでexternalpoject_addを使うのをやめる
+  if (${REBUILD_EXTERNAL})
+    execute_process_with_output(
+      COMMAND cmake -GNinja ${EXTERNAL_DIR}
+      WORKING_DIRECTORY ${EXTERNAL_BUILD_DIR}
+    )
+    execute_process_with_output(
+      COMMAND ninja -j 8
+      WORKING_DIRECTORY ${EXTERNAL_BUILD_DIR}
+    )
+  endif()
 endif()
 
 ### add external deps to the project
