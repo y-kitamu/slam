@@ -12,6 +12,7 @@
 #define HAVE_GLEW
 #endif
 #include <filesystem>
+#include <future>
 
 #include <glog/logging.h>
 #include <pangolin/display/display.h>
@@ -20,14 +21,25 @@
 #include <pangolin/gl/gldraw.h>
 #include <pangolin/gl/glsl.h>
 #include <pangolin/gl/glvbo.h>
+#include <pangolin/windowing/window.h>
 #include <argparse/argparse.hpp>
 #include <opencv2/opencv.hpp>
+#include "fmt/format.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_internal.h"
 
 #include "slam.hpp"
 
 namespace fs = std::filesystem;
+
+// struct Events {
+//     pangolin::WindowResizeEvent window_resize;
+//     pangolin::KeyboardEvent keyboard;
+//     pangolin::MouseEvent mouse;
+//     pangolin::MouseMotionEvent mouse_motion;
+//     pangolin::SpecialInputEvent special_input;
+// };
 
 
 void sample(const cv::Mat& image) {
@@ -36,6 +48,31 @@ void sample(const cv::Mat& image) {
     auto frag_shader = shader_dir / "simple.frag";
 
     pangolin::CreateWindowAndBind("Pango GL Triangle", 500, 500);
+    {
+        auto window = pangolin::GetBoundWindow();
+        window->ResizeSignal.connect([](const pangolin::WindowResizeEvent& ev) {
+            logd("window resize: {} {}", ev.width, ev.height);
+        });
+        window->KeyboardSignal.connect([](const pangolin::KeyboardEvent& ev) {
+            auto _ev = ev;
+            logd("keyboard: key = {}, pressed = {}, x = {}, y = {}, mask = {}", ev.key, ev.pressed, ev.x,
+                 ev.y, _ev.key_modifiers.mask());
+        });
+        window->MouseSignal.connect([](const pangolin::MouseEvent& ev) {
+            auto _ev = ev;
+            logd("mouse: button = {}, pressed = {}, x = {}, y = {}, mask = {}", ev.button, ev.pressed,
+                 ev.x, ev.y, _ev.key_modifiers.mask());
+        });
+        window->MouseMotionSignal.connect([](const pangolin::MouseMotionEvent& ev) {
+            auto _ev = ev;
+            logd("mouse motion: x = {}, y = {}, mask = {}", ev.x, ev.y, _ev.key_modifiers.mask());
+        });
+        window->SpecialInputSignal.connect([](const pangolin::SpecialInputEvent& ev) {
+            auto _ev = ev;
+            logd("special input: inputtype = {}, p = ({}, {}, {}, {}), x = {}, y = {}, mask = {}",
+                 ev.inType, ev.p[0], ev.p[1], ev.p[2], ev.p[3], ev.x, ev.y, _ev.key_modifiers.mask());
+        });
+    }
 
     pangolin::GlSlProgram prog;
     prog.AddShaderFromFile(pangolin::GlSlVertexShader, vert_shader.string());
@@ -70,6 +107,10 @@ void sample(const cv::Mat& image) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    {
+        //
+        io.ConfigInputTrickleEventQueue = true;
+    }
     ImGui_ImplOpenGL3_Init("#version 440");
     ImGui_ImplPangolin_Init(500, 500);
     ImGui::StyleColorsDark();
@@ -77,12 +118,17 @@ void sample(const cv::Mat& image) {
     glClearColor(0.64f, 0.5f, 0.81f, 0.0f);
 
     bool show_demo_window = true;
+    bool show_sample_window = true;
 
     while (!pangolin::ShouldQuit()) {
+        auto future = std::async(std::launch::async, [&]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000.0 / 60.0)));
+        });
+
         // Clear the window
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        image_view.Activate();
+        // image_view.Activate();
 
         prog.Bind();
         imageTexture.Upload(image.data, GL_RGB, GL_UNSIGNED_BYTE);
@@ -105,9 +151,27 @@ void sample(const cv::Mat& image) {
             if (show_demo_window) {
                 ImGui::ShowDemoWindow(&show_demo_window);
             }
+            ImGuiContext* g = ImGui::GetCurrentContext();
 
-            ImGui::Begin("Hello, world!");
-            ImGui::Text("This is some useful text.");
+            ImGui::Begin("Hello, world!", &show_sample_window, ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Text(fmt::format("FPS : {}", 1.0 / io.DeltaTime).c_str());
+
+            if (g->HoveredWindow && g->HoveredWindow->Name) {
+                ImGui::Text(fmt::format("Hovered window : {}", g->HoveredWindow->Name).c_str());
+            } else {
+                ImGui::Text("Hovered window : None");
+            }
+
+            ImGui::Text(fmt::format("Mouse position : ({}, {})", io.MousePos.x, io.MousePos.y).c_str());
+            for (int i = 0; i < g->Windows.Size; i++) {
+                ImGuiWindow* window = g->Windows[i];
+                auto rect = window->OuterRectClipped;
+                ImGui::Text(fmt::format("{}, (l, t, r, b) = ({}, {}, {}, {}), contain mouse = {}",
+                                        window->Name, rect.Min[0], rect.Min[1], rect.Max[0], rect.Max[1],
+                                        rect.Contains(io.MousePos))
+                                .c_str());
+            }
+
             ImGui::End();
         }
 
@@ -115,6 +179,8 @@ void sample(const cv::Mat& image) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         pangolin::FinishFrame();
+
+        future.wait();
     }
 
     ImGui_ImplOpenGL3_Shutdown();
