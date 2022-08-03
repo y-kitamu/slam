@@ -36,5 +36,8 @@ int main(int argc, char** argv) {
 
     cv::Mat img = cv::imread(image_path.string());
 
-    std::cout << img.cols << " " << img.rows << std::endl;
+    cv::Ptr<cv::Feature2D> feat_extractor = cv::ORB::create();
+    std::vector<cv::KeyPoint> keypoints;
+
+    feat_extractor->detect(img, keypoints);
 }

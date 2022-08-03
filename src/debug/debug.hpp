@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 
 #include "custom_format.hpp"
+#include "viewer.hpp"
 
 namespace {
 
