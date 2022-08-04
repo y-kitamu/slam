@@ -20,6 +20,7 @@
 #include <pangolin/display/display.h>
 #include <pangolin/display/view.h>
 #include <Eigen/Eigen>
+#include <Eigen/Geometry>
 #include <opencv2/opencv.hpp>
 
 
@@ -48,7 +49,7 @@ class AbstractShader {
      * @param data Shaderに渡すデータ。継承先でそれぞれのデータクラスにdynamic castされる
      */
     virtual void setData(std::shared_ptr<AbstractData> data) = 0;
-    virtual void setMVPMatrix(const Eigen::Matrix4f& mat) = 0;
+    virtual void setMVPMatrix(const Eigen::Affine3f& mat) = 0;
 };
 
 
@@ -88,6 +89,8 @@ class Viewer {
     const std::shared_ptr<AbstractShader>& getImageShader() const { return image_shader; }
     const std::shared_ptr<AbstractShader>& getPointCloudShader() const { return point_cloud_shader; }
 
+    const int getWidth() const { return width; }
+    const int getHeight() const { return height; }
 
   private:
     void initialize();
@@ -101,14 +104,17 @@ class Viewer {
     }
 
   private:
+    // window parameter
     const std::string window_name = "Debug Viewer";
     int fps = 60;
+    int width, height;
+    //
     std::vector<std::shared_ptr<AbstractData>> images;
     std::vector<std::shared_ptr<AbstractData>> point_clouds;
-    std::shared_ptr<AbstractPlugin> plugin;
     std::shared_ptr<AbstractShader> image_shader;
     std::shared_ptr<AbstractShader> point_cloud_shader;
-
+    std::shared_ptr<AbstractPlugin> plugin;
+    // For singleton pattern
     static std::once_flag initFlag;
     static bool initialized;
     static std::shared_ptr<Viewer> instance;

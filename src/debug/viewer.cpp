@@ -54,6 +54,16 @@ Viewer::Viewer() {
 
 void Viewer::initialize() {
     pangolin::CreateWindowAndBind(window_name, WINDOW_WIDTH, WINDOW_HEIGHT);
+    width = WINDOW_WIDTH;
+    height = WINDOW_HEIGHT;
+    {
+        // add window resize callback
+        auto window = pangolin::GetBoundWindow();
+        window->ResizeSignal.connect([this](const pangolin::WindowResizeEvent& ev) {
+            this->width = ev.width;
+            this->height = ev.height;
+        });
+    }
 
     for (auto& shader : ImageShaders) {
         shader->init();

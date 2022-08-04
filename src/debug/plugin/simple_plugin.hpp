@@ -9,10 +9,13 @@
 
 #include <debug/viewer.hpp>
 
+#include <imgui.h>
+#include <Eigen/Geometry>
+
+#include "../camera_matrix.hpp"
 #include "../data.hpp"
 
 #include <debug/debug.hpp>
-
 
 namespace slam {
 
@@ -45,9 +48,13 @@ class SimplePlugin : public slam::AbstractPlugin {
     }
 
     void draw() override {
+        handleEvents();
+
         auto viewer = slam::Viewer::getInstance();
         auto image_shader = viewer->getImageShader();
         auto point_cloud_shader = viewer->getPointCloudShader();
+
+        Eigen::Affine3f camera_pose(camera_pose_mat);
 
         if (current_image) {
             image_shader->setMVPMatrix(camera_pose);
@@ -64,6 +71,35 @@ class SimplePlugin : public slam::AbstractPlugin {
   private:
     void drawImGui() {}
 
+    /**
+     * @brief Mouse, keyboard input callback
+     */
+    void handleEvents() {
+        auto viewer = Viewer::getInstance();
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (!io.WantCaptureMouse) {
+            if (std::abs(io.MouseWheel) > 1e-5) {
+                camera_pose_mat = slam::zoom(camera_pose_mat, io.MouseWheel);
+            }
+            if (io.MouseDown[0]) {
+                if (start_mouse_pos.x() < 0 && start_mouse_pos.y() < 0) {
+                    start_mouse_pos = Eigen::Vector2f(io.MousePos.x, io.MousePos.y);
+                } else {
+                    float dx = io.MousePos.x - start_mouse_pos.x();
+                    float dy = io.MousePos.y - start_mouse_pos.y();
+                    camera_pose_mat =
+                        slam::pan(camera_pose_mat, dx, -dy, viewer->getWidth(), viewer->getHeight());
+                }
+            } else {
+                start_mouse_pos = Eigen::Vector2f(-1, -1);
+            }
+        }
+
+        if (!io.WantCaptureKeyboard) {
+        }
+    }
+
     void setCurrentImage(const std::shared_ptr<slam::ImageData>& image) {
         auto viewer = slam::Viewer::getInstance();
         current_image = image;
@@ -74,7 +110,9 @@ class SimplePlugin : public slam::AbstractPlugin {
   private:
     std::shared_ptr<slam::ImageData> current_image;
     std::vector<std::shared_ptr<slam::PointCloudData>> current_point_clouds;
-    Eigen::Matrix4f camera_pose = Eigen::Matrix4f::Identity();
+    // geometry params
+    Eigen::Matrix4f camera_pose_mat = Eigen::Matrix4f::Identity();
+    Eigen::Vector2f start_mouse_pos;
 };
 
 

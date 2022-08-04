@@ -240,7 +240,6 @@ static void handleKeyboadEvent(const pangolin::KeyboardEvent& event) {
 static void handleMouseEvent(const pangolin::MouseEvent& event) {
     ImGuiIO& io = ImGui::GetIO();
 
-    io.AddMousePosEvent(event.x, event.y);
     switch (event.button) {
         case 0:
             io.AddMouseButtonEvent(ImGuiMouseButton_Left, event.pressed);
@@ -250,6 +249,12 @@ static void handleMouseEvent(const pangolin::MouseEvent& event) {
             break;
         case 2:
             io.AddMouseButtonEvent(ImGuiMouseButton_Middle, event.pressed);
+            break;
+        case 3:
+            io.AddMouseWheelEvent(0, MOUSE_WHEEL_SCALE);
+            break;
+        case 4:
+            io.AddMouseWheelEvent(0, -MOUSE_WHEEL_SCALE);
             break;
     }
 }

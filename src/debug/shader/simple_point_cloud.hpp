@@ -38,7 +38,7 @@ class SimplePointCloudShader : public slam::AbstractShader {
         }
     }
 
-    void setMVPMatrix(const Eigen::Matrix4f& mat) override {}
+    void setMVPMatrix(const Eigen::Affine3f& mat) override {}
 
   private:
     std::shared_ptr<slam::PointCloudData> data;

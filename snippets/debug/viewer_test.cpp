@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 
     auto viewer = slam::Viewer::getInstance();
 
-    {
+    if (false) {
         auto window = pangolin::GetBoundWindow();
         window->ResizeSignal.connect([](const pangolin::WindowResizeEvent& ev) {
             slam_logd("window resize: {} {}", ev.width, ev.height);

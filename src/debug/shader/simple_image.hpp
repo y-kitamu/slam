@@ -23,7 +23,7 @@ constexpr char SHADER[] = R"SHADER(
 @start vertex
 
 #version 440
-layout(location = 0) in vec3 aPos;  // coordinate in pixel space.
+layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 aTexCoord;
 
 uniform mat4 uMVPMatrix;
@@ -85,7 +85,8 @@ class SimpleImageShader : public slam::AbstractShader {
     void draw() override {
         if (data) {
             prog.Bind();
-            prog.SetUniform("uMVPMatrix", uMVPMatrix);
+            prog.SetUniform("uMVPMatrix", uMVPMatrix.matrix());
+            slam_logd("mvmat : {}", uMVPMatrix.matrix());
             auto image = data->getImage();
 
             imageTexture.Upload(image.data, GL_BGR, GL_UNSIGNED_BYTE);
@@ -104,9 +105,9 @@ class SimpleImageShader : public slam::AbstractShader {
         if (image_data) {
             this->data = image_data;
             auto image = image_data->getImage();
-            slam_logd("image : {}", image);
             imageTexture =
                 pangolin::GlTexture(image.cols, image.rows, GL_RGB, false, 0, GL_BGR, GL_UNSIGNED_BYTE);
+            slam_logd("Set Image : {}", image);
         } else {
             slam_loge(
                 "SimpleImageShader::setData: invalid data type. Data must be instance of "
@@ -114,7 +115,7 @@ class SimpleImageShader : public slam::AbstractShader {
         }
     }
 
-    void setMVPMatrix(const Eigen::Matrix4f& matrix) override { uMVPMatrix = matrix; }
+    void setMVPMatrix(const Eigen::Affine3f& matrix) override { uMVPMatrix = matrix; }
 
   private:
     void drawImGui() {}
@@ -122,7 +123,7 @@ class SimpleImageShader : public slam::AbstractShader {
   private:
     std::shared_ptr<ImageData> data;
     // shader uniform variables
-    Eigen::Matrix4f uMVPMatrix;
+    Eigen::Affine3f uMVPMatrix;
     // opengl objects
     pangolin::GlSlProgram prog;
     pangolin::GlBuffer vbo;
