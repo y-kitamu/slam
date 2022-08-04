@@ -24,6 +24,10 @@ class PointCloudData : public AbstractData {
             this->points.push_back(Eigen::Vector3f(p[0], p[1], 0.0));
         }
     }
+    const Eigen::Vector4f getColor() const {
+        return Eigen::Vector4f(color.x(), color.y(), color.z(), 1.0);
+    }
+    const std::vector<Eigen::Vector3f>& getPoints() const { return points; }
 
   private:
     Eigen::Vector3f color;

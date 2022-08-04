@@ -19,7 +19,7 @@
 
 namespace {
 
-constexpr char SHADER[] = R"SHADER(
+constexpr char SIMPLE_IMAGE_SHADER[] = R"SHADER(
 @start vertex
 
 #version 440
@@ -60,7 +60,7 @@ class SimpleImageShader : public slam::AbstractShader {
     ~SimpleImageShader() override = default;
 
     void init() override {
-        prog.AddShader(pangolin::GlSlAnnotatedShader, SHADER);
+        prog.AddShader(pangolin::GlSlAnnotatedShader, SIMPLE_IMAGE_SHADER);
         prog.Link();
 
         vbo = pangolin::GlBuffer(pangolin::GlArrayBuffer, std::vector<Eigen::Matrix<float, 5, 1>>{
@@ -86,7 +86,6 @@ class SimpleImageShader : public slam::AbstractShader {
         if (data) {
             prog.Bind();
             prog.SetUniform("uMVPMatrix", uMVPMatrix.matrix());
-            slam_logd("mvmat : {}", uMVPMatrix.matrix());
             auto image = data->getImage();
 
             imageTexture.Upload(image.data, GL_BGR, GL_UNSIGNED_BYTE);
