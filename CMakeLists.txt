@@ -106,7 +106,7 @@ message(STATUS "External libs : ${EXTERNAL_LIBS}")
 ### create library
 message(STATUS "Create library...")
 set(LIBRARIES "" CACHE INTERNAL "")
-include_directories(AFTER ${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(AFTER ${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_subdirectory(src)
 
 ### create executables

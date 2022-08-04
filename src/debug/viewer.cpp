@@ -4,7 +4,7 @@
  * @author Yusuke Kitamura <ymyk6602@gmail.com>
  * @date 2022-08-03 20:42:03
  */
-#include "viewer.hpp"
+#include <debug/viewer.hpp>
 
 #include <future>
 
@@ -15,7 +15,10 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 
-#include "extension/imgui_impl_pangolin.h"
+#include <extension/imgui_impl_pangolin.h>
+#include "data.hpp"
+#include "plugin.hpp"
+#include "shader.hpp"
 
 namespace {
 
@@ -23,68 +26,41 @@ constexpr int WINDOW_WIDTH = 1280;
 constexpr int WINDOW_HEIGHT = 720;
 
 
-class SimpleImageShader : public slam::AbstractShader {
-  public:
-    SimpleImageShader() = default;
-    ~SimpleImageShader() override = default;
-    void init() override {}
-    void draw() override {}
-};
-
-
-class SimplePointCloudShader : public slam::AbstractShader {
-  public:
-    SimplePointCloudShader() = default;
-    ~SimplePointCloudShader() override = default;
-    void init() override {}
-    void draw() override {}
-};
-
-
 const std::vector<std::shared_ptr<slam::AbstractShader>> ImageShaders{
-    std::make_shared<SimpleImageShader>()};
+    std::make_shared<slam::SimpleImageShader>()};
 const std::vector<std::shared_ptr<slam::AbstractShader>> PointCloudShaders{
-    std::make_shared<SimplePointCloudShader>()};
+    std::make_shared<slam::SimplePointCloudShader>()};
 
-class SimplePlugin : public slam::AbstractPlugin {
-  public:
-    SimplePlugin() {}
-    ~SimplePlugin() override {}
-
-    void init() override {
-        auto viewer = slam::Viewer::getInstance();
-        auto images = viewer.getImages();
-        if (images.size() > 0) {
-            current_image = images[0];
-        }
-        auto points = viewer.getPointClouds();
-        if (points.size() > 0) {
-            current_point_clouds = points[0];
-        }
-    }
-
-    void draw() override {
-        auto viewer = slam::Viewer::getInstance();
-        auto image_shader = viewer.getImageShader();
-        auto point_cloud_shader = viewer.getPointCloudShader();
-    }
-
-  private:
-    std::shared_ptr<slam::ImageData> current_image;
-    std::shared_ptr<slam::PointCloudData> current_point_clouds;
-    Eigen::Matrix3f camera_pose;
-};
-
-
-const std::vector<std::shared_ptr<slam::AbstractPlugin>> Plugins{std::make_shared<SimplePlugin>()};
+const std::vector<std::shared_ptr<slam::AbstractPlugin>> Plugins{std::make_shared<slam::SimplePlugin>()};
 
 }  // namespace
 
 
 namespace slam {
 
+std::once_flag Viewer::initFlag;
+bool Viewer::initialized = false;
+std::shared_ptr<Viewer> Viewer::instance = nullptr;
+
+
 Viewer::Viewer() {
+    if (!initialized) {
+        initialize();
+        initialized = true;
+    } else {
+        slam_loge("Viewer must be Singleton object. Get instance by getInstance().");
+    }
+}
+
+void Viewer::initialize() {
     pangolin::CreateWindowAndBind(window_name, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    for (auto& shader : ImageShaders) {
+        shader->init();
+    }
+    for (auto& shader : PointCloudShaders) {
+        shader->init();
+    }
 
     plugin = Plugins[0];
     image_shader = ImageShaders[0];
@@ -97,7 +73,10 @@ Viewer::Viewer() {
     ImGui_ImplOpenGL3_Init("#version 440");
     ImGui_ImplPangolin_Init(WINDOW_WIDTH, WINDOW_HEIGHT);
     ImGui::StyleColorsDark();
+
+    slam_logd("Viewer initialized.");
 }
+
 
 void Viewer::render() {
     const pangolin::View& view = pangolin::Display("viewport").SetBounds(0.0f, 1.0f, 0.0f, 1.0f, 1.0);
@@ -134,6 +113,13 @@ void Viewer::render() {
     ImGui_ImplPangolin_Shutdown();
     ImGui::DestroyContext();
 }
+
+void Viewer::addImage(const cv::Mat& image) { images.push_back(std::make_shared<ImageData>(image)); };
+
+void Viewer::addPointCloud(const std::vector<Eigen::Vector2f>& points) {
+    point_clouds.push_back(std::make_shared<PointCloudData>(points));
+};
+
 
 void Viewer::renderImGui() {
     // plugin selector

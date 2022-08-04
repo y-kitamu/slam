@@ -4,15 +4,12 @@
  * @author Yusuke Kitamura <ymyk6602@gmail.com>
  * @date 2022-08-02 17:50:59
  */
-#include "imgui_impl_pangolin.h"
+#include "extension/imgui_impl_pangolin.h"
 
 #include <chrono>
 
 #include <pangolin/display/display.h>
 #include "imgui.h"
-
-#include "debug/debug.hpp"
-#include "imgui_internal.h"
 
 
 constexpr float MOUSE_WHEEL_SCALE = 1.0f;
@@ -288,6 +285,7 @@ bool ImGui_ImplPangolin_Init(int width, int height) {
     window->KeyboardSignal.connect(handleKeyboadEvent);
     window->MouseSignal.connect(handleMouseEvent);
     window->MouseMotionSignal.connect(handleMouseMotionEvent);
+    window->PassiveMouseMotionSignal.connect(handleMouseMotionEvent);
     window->SpecialInputSignal.connect(handleSpecialInputEvent);
 
     return true;
@@ -311,14 +309,6 @@ void ImGui_ImplPangolin_NewFrame() {
     IM_ASSERT(bd != NULL && "No platform backend to render with, or already shutdown?");
 
     io.DisplaySize = ImVec2((float)bd->window_width, (float)bd->window_height);
-    if (bd->window_width > 0 && bd->window_height > 0) {
-        GLint dims[4] = {0};
-        glGetIntegerv(GL_VIEWPORT, dims);
-        GLint fbWidth = dims[2];
-        GLint fbHeight = dims[3];
-        // io.DisplayFramebufferScale =
-        //     ImVec2((float)bd->window_width / fbWidth, (float)bd->window_height / fbHeight);
-    }
 
     double current_time = get_time();
     float delta = (float)(current_time - bd->time);

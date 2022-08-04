@@ -51,26 +51,27 @@ void sample(const cv::Mat& image) {
     {
         auto window = pangolin::GetBoundWindow();
         window->ResizeSignal.connect([](const pangolin::WindowResizeEvent& ev) {
-            logd("window resize: {} {}", ev.width, ev.height);
+            slam_logd("window resize: {} {}", ev.width, ev.height);
         });
         window->KeyboardSignal.connect([](const pangolin::KeyboardEvent& ev) {
             auto _ev = ev;
-            logd("keyboard: key = {}, pressed = {}, x = {}, y = {}, mask = {}", ev.key, ev.pressed, ev.x,
-                 ev.y, _ev.key_modifiers.mask());
+            slam_logd("keyboard: key = {}, pressed = {}, x = {}, y = {}, mask = {}", ev.key, ev.pressed,
+                      ev.x, ev.y, _ev.key_modifiers.mask());
         });
         window->MouseSignal.connect([](const pangolin::MouseEvent& ev) {
             auto _ev = ev;
-            logd("mouse: button = {}, pressed = {}, x = {}, y = {}, mask = {}", ev.button, ev.pressed,
-                 ev.x, ev.y, _ev.key_modifiers.mask());
+            slam_logd("mouse: button = {}, pressed = {}, x = {}, y = {}, mask = {}", ev.button,
+                      ev.pressed, ev.x, ev.y, _ev.key_modifiers.mask());
         });
         window->MouseMotionSignal.connect([](const pangolin::MouseMotionEvent& ev) {
             auto _ev = ev;
-            logd("mouse motion: x = {}, y = {}, mask = {}", ev.x, ev.y, _ev.key_modifiers.mask());
+            slam_logd("mouse motion: x = {}, y = {}, mask = {}", ev.x, ev.y, _ev.key_modifiers.mask());
         });
         window->SpecialInputSignal.connect([](const pangolin::SpecialInputEvent& ev) {
             auto _ev = ev;
-            logd("special input: inputtype = {}, p = ({}, {}, {}, {}), x = {}, y = {}, mask = {}",
-                 ev.inType, ev.p[0], ev.p[1], ev.p[2], ev.p[3], ev.x, ev.y, _ev.key_modifiers.mask());
+            slam_logd("special input: inputtype = {}, p = ({}, {}, {}, {}), x = {}, y = {}, mask = {}",
+                      ev.inType, ev.p[0], ev.p[1], ev.p[2], ev.p[3], ev.x, ev.y,
+                      _ev.key_modifiers.mask());
         });
     }
 

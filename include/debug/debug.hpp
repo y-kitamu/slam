@@ -12,9 +12,6 @@
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 
-#include "custom_format.hpp"
-#include "viewer.hpp"
-
 namespace {
 
 namespace fs = std::filesystem;
@@ -23,7 +20,7 @@ namespace fs = std::filesystem;
 
 const fs::path PROJECT_ROOT = fs::path(__FILE__).parent_path().parent_path();
 
-#define _log(loglevel, fmtstr, ...)                                                             \
+#define _slam_log(loglevel, fmtstr, ...)                                                        \
     std::cout << fmt::format("[{:%Y-%m-%d %H:%M:%S} {} File: {}, Line: {}] ",                   \
                              fmt::localtime(std::time(nullptr)), loglevel,                      \
                              fs::relative(fs::path(__FILE__), PROJECT_ROOT).string(), __LINE__) \
@@ -32,11 +29,15 @@ const fs::path PROJECT_ROOT = fs::path(__FILE__).parent_path().parent_path();
 #ifdef NDEBUG
 #define logd(fmtstr, ...)
 #else
-#define logd(fmtstr, ...) _log("DEBUG", fmtstr __VA_OPT__(, ) __VA_ARGS__)
+#define slam_logd(fmtstr, ...) _slam_log("DEBUG", fmtstr __VA_OPT__(, ) __VA_ARGS__)
 #endif  // NDEBUG
 
-#define logw(fmtstr, ...) _log("WARNING", fmtstr __VA_OPT__(, ) __VA_ARGS__)
-#define loge(fmtstr, ...) _log("ERROR", fmtstr __VA_OPT__(, ) __VA_ARGS__)
+#define slam_logw(fmtstr, ...) _slam_log("WARNING", fmtstr __VA_OPT__(, ) __VA_ARGS__)
+#define slam_loge(fmtstr, ...) _slam_log("ERROR", fmtstr __VA_OPT__(, ) __VA_ARGS__)
+
+
+#include "custom_format.hpp"
+#include "viewer.hpp"
 
 
 #endif  // DEBUG_HPP__
