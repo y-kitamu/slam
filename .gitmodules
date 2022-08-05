@@ -13,3 +13,6 @@
 [submodule "ext/imgui"]
 	path = ext/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "ext/g2o"]
+	path = ext/g2o
+	url = https://github.com/RainerKuemmerle/g2o.git

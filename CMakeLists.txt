@@ -59,6 +59,9 @@ find_package(Eigen3 REQUIRED)
 # opencv
 set(OpenCV_ROOT ${EXTERNAL_BUILD_DIR}/install)
 find_package(OpenCV REQUIRED)
+# g2o
+set(g2o_ROOT ${EXTERNAL_DIR}/g2o/build/install)
+find_package(g2o REQUIRED)
 #
 include_directories(AFTER
   ${EIGEN3_INCLUDE_DIR}
@@ -67,6 +70,7 @@ include_directories(AFTER
   ${EXTERNAL_DIR}/fmt/include
   ${EXTERNAL_DIR}/imgui
   ${EXTERNAL_DIR}/imgui/backends
+  ${g2o_ROOT}/include
 )
 #
 set(EXTERNAL_LIBS
@@ -74,6 +78,7 @@ set(EXTERNAL_LIBS
   fmt::fmt
   imgui
   ${OpenCV_LIBS}
+  g2o::core
   CACHE INTERNAL "")
 
 if (${BUILD_SNIPPETS})
