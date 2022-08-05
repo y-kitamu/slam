@@ -24,11 +24,10 @@ constexpr char SIMPLE_POINT_CLOUD_SHADER[] = R"SHADER(
 
 layout(location = 0) in vec3 aPos;
 
-uniform float xyScale;
 uniform mat4 uMVPMatrix;
 
 void main() {
-    gl_Position = uMVPMatrix * vec4(aPos.xy * xyScale, aPos.z, 1.0);
+    gl_Position = uMVPMatrix * vec4(aPos, 1.0);
 }
 
 @start fragment
@@ -56,16 +55,22 @@ class SimplePointCloudShader : public slam::AbstractShader {
     void init() override {
         prog.AddShader(pangolin::GlSlAnnotatedShader, SIMPLE_POINT_CLOUD_SHADER);
         prog.Link();
+
+        glGenVertexArrays(1, &vao);
     }
 
     void draw() override {
         if (data) {
+            // slam_logd("render point cloud");
             prog.Bind();
             prog.SetUniform("uMVPMatrix", uMVPMatrix.matrix());
             prog.SetUniform("uColor", data->getColor());
+            glPointSize(uPointSize);
 
+            glBindVertexArray(vao);
             vbo.Bind();
-            glDrawArrays(GL_POINTS, 0, data->getPoints().size());
+            glDrawArrays(GL_POINTS, 0, vbo.num_elements);
+            glBindVertexArray(0);
             vbo.Unbind();
 
             prog.Unbind();
@@ -77,6 +82,13 @@ class SimplePointCloudShader : public slam::AbstractShader {
         if (point_cloud_data) {
             this->data = point_cloud_data;
             vbo = pangolin::GlBuffer(pangolin::GlArrayBuffer, this->data->getPoints());
+            vbo.Bind();
+
+            glBindVertexArray(vao);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 3, 0);
+            glBindVertexArray(0);
+            vbo.Unbind();
         } else {
             slam_loge(
                 "SimplePointCloudShader::setData: invalid data type. Data must be instance of "
@@ -84,7 +96,7 @@ class SimplePointCloudShader : public slam::AbstractShader {
         }
     }
 
-    void setMVPMatrix(const Eigen::Affine3f& mat) override {}
+    void setMVPMatrix(const Eigen::Affine3f& mat) override { uMVPMatrix = mat; }
 
   private:
     std::shared_ptr<slam::PointCloudData> data;
@@ -93,6 +105,9 @@ class SimplePointCloudShader : public slam::AbstractShader {
     // opengl objects
     pangolin::GlSlProgram prog;
     pangolin::GlBuffer vbo;
+    GLuint vao;
+    //
+    float uPointSize = 10.0f;
 };
 }  // namespace slam
 

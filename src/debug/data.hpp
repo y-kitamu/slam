@@ -9,6 +9,7 @@
 
 #include <debug/viewer.hpp>
 
+#include <debug/debug.hpp>
 
 namespace slam {
 
@@ -23,6 +24,12 @@ class PointCloudData : public AbstractData {
         for (const auto& p : points) {
             this->points.push_back(Eigen::Vector3f(p[0], p[1], 0.0));
         }
+        {
+            slam_logd("Number of points : {}", this->points.size());
+            for (auto& p : this->points) {
+                slam_logd("  ({}, {}, {})", p.x(), p.y(), p.z());
+            }
+        }
     }
     const Eigen::Vector4f getColor() const {
         return Eigen::Vector4f(color.x(), color.y(), color.z(), 1.0);
@@ -30,7 +37,7 @@ class PointCloudData : public AbstractData {
     const std::vector<Eigen::Vector3f>& getPoints() const { return points; }
 
   private:
-    Eigen::Vector3f color;
+    Eigen::Vector3f color = Eigen::Vector3f(1.0, 0.0, 0.0);
     std::vector<Eigen::Vector3f> points;
 };
 

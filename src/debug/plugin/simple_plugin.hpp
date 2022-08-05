@@ -26,7 +26,6 @@ class SimplePlugin : public slam::AbstractPlugin {
 
     void init() override {
         auto viewer = slam::Viewer::getInstance();
-
         pangolin::Display(viewport_name).SetBounds(0.0f, 1.0f, 0.0f, 1.0f, 1.0f);
 
         auto images = viewer->getImages();
@@ -60,6 +59,8 @@ class SimplePlugin : public slam::AbstractPlugin {
         auto point_cloud_shader = viewer->getPointCloudShader();
 
         Eigen::Affine3f camera_pose(camera_pose_mat);
+        Eigen::Affine3f scaled_camera_pose(
+            camera_pose_mat * pixel2gl_mat);  // pixel座標からのスケール変換込みのcamera_pose
 
         if (current_image) {
             image_shader->setMVPMatrix(camera_pose);
@@ -67,7 +68,7 @@ class SimplePlugin : public slam::AbstractPlugin {
         }
 
         for (auto& point_cloud : current_point_clouds) {
-            point_cloud_shader->setMVPMatrix(camera_pose);
+            point_cloud_shader->setMVPMatrix(scaled_camera_pose);
             point_cloud_shader->setData(point_cloud);
             point_cloud_shader->draw();
         }
@@ -101,9 +102,14 @@ class SimplePlugin : public slam::AbstractPlugin {
 
     void setCurrentImage(const std::shared_ptr<slam::ImageData>& image) {
         auto viewer = slam::Viewer::getInstance();
+        auto& view = pangolin::Display(viewport_name);
+
         current_image = image;
         auto image_shader = viewer->getImageShader();
         image_shader->setData(current_image);
+
+        camera_pose_mat = Eigen::Matrix4f::Identity();
+        pixel2gl_mat = slam::getPixel2glMat(view, current_image->getImage());
     }
 
   private:
@@ -113,6 +119,7 @@ class SimplePlugin : public slam::AbstractPlugin {
     std::string viewport_name = "simple_plugin_viewport";
     // geometry params
     Eigen::Matrix4f camera_pose_mat = Eigen::Matrix4f::Identity();
+    Eigen::Matrix4f pixel2gl_mat = Eigen::Matrix4f::Identity();
 };
 
 

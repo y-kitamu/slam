@@ -65,5 +65,17 @@ int main(int argc, char** argv) {
     }
 
     viewer->addImage(img);
+    viewer->addPointCloud({
+        Eigen::Vector2f{100, 100},
+        Eigen::Vector2f{200, 100},
+        Eigen::Vector2f{200, 200},
+        Eigen::Vector2f{100, 200},
+    });
+    // viewer->addPointCloud({
+    //     Eigen::Vector2f{0.2, 0.2},
+    //     Eigen::Vector2f{0.8, 0.8},
+    //     Eigen::Vector2f{0.8, 0.2},
+    //     Eigen::Vector2f{0.2, 0.8},
+    // });
     viewer->render();
 }
