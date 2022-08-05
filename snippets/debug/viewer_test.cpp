@@ -17,7 +17,8 @@ int main(int argc, char** argv) {
     argparse::ArgumentParser parser("Pangolin test");
     parser.add_argument("-i", "--image")
         .help("Input Image")
-        .default_value(std::string("/home/kitamura/work/slam/dataset/sample_image/lena.png"));
+        .default_value(
+            std::string("/home/kitamura/work/slam/dataset/sample_image/IMG_20210722_170349.jpg"));
 
     try {
         parser.parse_args(argc, argv);  // Example: ./main --color red --color green --color blue
@@ -65,11 +66,11 @@ int main(int argc, char** argv) {
     }
 
     viewer->addImage(img);
-    viewer->addPointCloud({
-        Eigen::Vector2f{100, 100},
-        Eigen::Vector2f{200, 100},
-        Eigen::Vector2f{200, 200},
-        Eigen::Vector2f{100, 200},
+    viewer->addPointCloud<Eigen::Vector2f>({
+        Eigen::Vector2f{0, 0},
+        Eigen::Vector2f{512, 0},
+        Eigen::Vector2f{0, 512},
+        Eigen::Vector2f{512, 512},
     });
     // viewer->addPointCloud({
     //     Eigen::Vector2f{0.2, 0.2},

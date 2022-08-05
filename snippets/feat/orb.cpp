@@ -10,6 +10,8 @@
 #include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <slam.hpp>
+
 namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
@@ -40,4 +42,11 @@ int main(int argc, char** argv) {
     std::vector<cv::KeyPoint> keypoints;
 
     feat_extractor->detect(img, keypoints);
+
+    slam_logd("Number of key points : {}", keypoints.size());
+
+    auto viewer = slam::Viewer::getInstance();
+    viewer->addImage(img);
+    viewer->addPointCloud(keypoints);
+    viewer->render();
 }

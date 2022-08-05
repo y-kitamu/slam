@@ -128,7 +128,8 @@ void Viewer::render() {
 
 void Viewer::addImage(const cv::Mat& image) { images.push_back(std::make_shared<ImageData>(image)); };
 
-void Viewer::addPointCloud(const std::vector<Eigen::Vector2f>& points) {
+template <typename T>
+void Viewer::addPointCloud(const std::vector<T>& points) {
     point_clouds.push_back(std::make_shared<PointCloudData>(points));
 };
 
@@ -141,5 +142,10 @@ void Viewer::renderImGui() {
     // point cloud shader selector
 }
 
+
+template void Viewer::addPointCloud<Eigen::Vector2f>(const std::vector<Eigen::Vector2f>& points);
+template void Viewer::addPointCloud<Eigen::Vector3f>(const std::vector<Eigen::Vector3f>& points);
+template void Viewer::addPointCloud<cv::KeyPoint>(const std::vector<cv::KeyPoint>& points);
+;
 
 }  // namespace slam

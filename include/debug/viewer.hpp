@@ -80,7 +80,8 @@ class Viewer {
 
     void addImage(const cv::Mat& image);
 
-    void addPointCloud(const std::vector<Eigen::Vector2f>& points);
+    template <typename T>
+    void addPointCloud(const std::vector<T>& points);
 
     void render();
 

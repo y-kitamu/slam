@@ -108,8 +108,10 @@ class SimplePlugin : public slam::AbstractPlugin {
         auto image_shader = viewer->getImageShader();
         image_shader->setData(current_image);
 
+        auto img = image->getImage();
+        view.SetBounds(0.0f, 1.0f, 0.0f, 1.0f, img.cols / (float)img.rows);
         camera_pose_mat = Eigen::Matrix4f::Identity();
-        pixel2gl_mat = slam::getPixel2glMat(view, current_image->getImage());
+        pixel2gl_mat = slam::getPixel2glMat(img);
     }
 
   private:

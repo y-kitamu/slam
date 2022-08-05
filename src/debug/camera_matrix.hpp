@@ -35,22 +35,12 @@ Eigen::Matrix4f pan(const Eigen::Matrix4f& mat, float dx, float dy, float width,
     return trans.matrix();
 }
 
-Eigen::Matrix4f getPixel2glMat(const pangolin::View& view, const cv::Mat& img) {
-    float w = view.v.w, h = view.v.h;
-    if (w < 1e-5 || h < 1e-5) {
-        slam_loge("Invalid view size : {}, {}", view.v.w, view.v.h);
-        return Eigen::Matrix4f::Identity();
-    }
-    float scale = 1.0;
-    float sx = w / (float)img.cols, sy = h / (float)img.rows;
-    if (sx < sy) {
-        scale = std::max(w, (float)img.cols) * 0.5;
-    } else {
-        scale = std::max(h, (float)img.rows) * 0.5;
-    }
+Eigen::Matrix4f getPixel2glMat(const cv::Mat& img) {
+    float scale_x = img.cols * 0.5;
+    float scale_y = img.rows * 0.5;
     Eigen::Translation3f pre((float)-img.cols / 2.0f, (float)-img.rows / 2.0f, 0.0f);
     // Eigen::Translation3f post(0.5f, 0.5f, 0.0f);
-    auto rescale = Eigen::Scaling(1.0f / scale, -1.0f / scale, 1.0f);
+    auto rescale = Eigen::Scaling(1.0f / scale_x, -1.0f / scale_y, 1.0f);
     Eigen::Affine3f aff = rescale * pre;
     return aff.matrix();
 }
