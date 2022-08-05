@@ -15,13 +15,14 @@
 #include <future>
 
 #include <glog/logging.h>
+#include <pangolin/console/ConsoleView.h>
 #include <pangolin/display/display.h>
 #include <pangolin/display/view.h>
 #include <pangolin/gl/gl.h>
 #include <pangolin/gl/gldraw.h>
 #include <pangolin/gl/glsl.h>
 #include <pangolin/gl/glvbo.h>
-#include <pangolin/windowing/window.h>
+#include <pangolin/pangolin.h>
 #include <argparse/argparse.hpp>
 #include <opencv2/opencv.hpp>
 #include "fmt/format.h"
@@ -29,6 +30,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 
+#include "../../ext/Pangolin/components/pango_display/src/pangolin_gl.h"
 #include "slam.hpp"
 
 namespace fs = std::filesystem;
@@ -52,6 +54,19 @@ void sample(const cv::Mat& image) {
         auto window = pangolin::GetBoundWindow();
         window->ResizeSignal.connect([](const pangolin::WindowResizeEvent& ev) {
             slam_logd("window resize: {} {}", ev.width, ev.height);
+            pangolin::PangolinGl* context = pangolin::GetCurrentContext();
+            {
+                if (context->console_view) {
+                    auto vp = context->console_view->v;
+                    slam_logd("console viewport : {}, {}, {}, {}", vp.l, vp.b, vp.w, vp.h);
+                }
+                auto v = context->base.v;
+                slam_logd("viewport : {}, {}, {}, {}", v.l, v.b, v.w, v.h);
+                for (auto ptr : context->base.views) {
+                    auto vc = ptr->v;
+                    slam_logd("  child vp : {}, {}, {}, {}", vc.l, vc.b, vc.w, vc.h);
+                }
+            }
         });
         window->KeyboardSignal.connect([](const pangolin::KeyboardEvent& ev) {
             auto _ev = ev;
@@ -80,8 +95,22 @@ void sample(const cv::Mat& image) {
     prog.AddShaderFromFile(pangolin::GlSlFragmentShader, frag_shader.string());
     prog.Link();
 
-    pangolin::View& image_view = pangolin::Display("viewport").SetBounds(0.2f, 0.8f, 0.2f, 0.8f, 1.0);
-    pangolin::View& window_view = pangolin::Display("viewport").SetBounds(0.0f, 1.0f, 0.0f, 1.0f, 1.0);
+    {
+        auto context = pangolin::GetCurrentContext();
+        slam_logd("Number of views : {}", context->base.views.size());
+    }
+    // pangolin::View& image_view = pangolin::Display("viewport0").SetBounds(0.2f, 0.8f, 0.2f, 0.8f,
+    // 0.0); pangolin::View& window_view = pangolin::Display("viewport1").SetBounds(0.0f, 1.0f,
+    // 0.0f, 1.0f, 0.0);
+    // {
+    //     auto context = pangolin::GetCurrentContext();
+    //     slam_logd("Number of views : {}", context->base.views.size());
+    //     auto iv = image_view.v;
+    //     slam_logd("image_view : {}, {}, {}, {}", iv.l, iv.b, iv.w, iv.h);
+    //     auto wv = window_view.v;
+    //     slam_logd("window_view : {}, {}, {}, {}", wv.l, wv.b, wv.w, wv.h);
+    // }
+
 
     pangolin::GlBuffer vbo(pangolin::GlArrayBuffer,
                            std::vector<Eigen::Matrix<float, 5, 1>>{{-0.5f, -0.5f, 0.0f, 0.0f, 0.0f},
@@ -142,7 +171,7 @@ void sample(const cv::Mat& image) {
         vbo.Unbind();
         prog.Unbind();
 
-        window_view.Activate();
+        // window_view.Activate();
 
         // imgui
         ImGui_ImplOpenGL3_NewFrame();

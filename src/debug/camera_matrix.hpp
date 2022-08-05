@@ -26,8 +26,8 @@ Eigen::Matrix4f zoom(Eigen::Matrix4f mat, float dz) {
 
 Eigen::Matrix4f pan(const Eigen::Matrix4f& mat, float dx, float dy, float width, float height) {
     Eigen::Affine3f trans(mat);
-    trans(0, 3) = dx / width * 2.0;
-    trans(1, 3) = dy / height * 2.0;
+    trans(0, 3) += dx / width * 2.0;
+    trans(1, 3) += dy / height * 2.0;
     return trans.matrix();
 }
 

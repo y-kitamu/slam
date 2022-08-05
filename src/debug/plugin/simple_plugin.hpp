@@ -27,6 +27,8 @@ class SimplePlugin : public slam::AbstractPlugin {
     void init() override {
         auto viewer = slam::Viewer::getInstance();
 
+        pangolin::Display(viewport_name).SetBounds(0.0f, 1.0f, 0.0f, 1.0f, 1.0f);
+
         auto images = viewer->getImages();
         for (auto& image : images) {
             auto d = std::dynamic_pointer_cast<slam::ImageData>(image);
@@ -48,6 +50,9 @@ class SimplePlugin : public slam::AbstractPlugin {
     }
 
     void draw() override {
+        auto& view = pangolin::Display(viewport_name);
+        view.Activate();
+
         handleEvents();
 
         auto viewer = slam::Viewer::getInstance();
@@ -75,7 +80,8 @@ class SimplePlugin : public slam::AbstractPlugin {
      * @brief Mouse, keyboard input callback
      */
     void handleEvents() {
-        auto viewer = Viewer::getInstance();
+        auto& view = pangolin::Display(viewport_name);
+
         ImGuiIO& io = ImGui::GetIO();
 
         if (!io.WantCaptureMouse) {
@@ -83,16 +89,9 @@ class SimplePlugin : public slam::AbstractPlugin {
                 camera_pose_mat = slam::zoom(camera_pose_mat, io.MouseWheel);
             }
             if (io.MouseDown[0]) {
-                if (start_mouse_pos.x() < 0 && start_mouse_pos.y() < 0) {
-                    start_mouse_pos = Eigen::Vector2f(io.MousePos.x, io.MousePos.y);
-                } else {
-                    float dx = io.MousePos.x - start_mouse_pos.x();
-                    float dy = io.MousePos.y - start_mouse_pos.y();
-                    camera_pose_mat =
-                        slam::pan(camera_pose_mat, dx, -dy, viewer->getWidth(), viewer->getHeight());
-                }
-            } else {
-                start_mouse_pos = Eigen::Vector2f(-1, -1);
+                float dx = io.MouseDelta[0];
+                float dy = io.MouseDelta[1];
+                camera_pose_mat = slam::pan(camera_pose_mat, dx, -dy, view.v.w, view.v.h);
             }
         }
 
@@ -110,9 +109,10 @@ class SimplePlugin : public slam::AbstractPlugin {
   private:
     std::shared_ptr<slam::ImageData> current_image;
     std::vector<std::shared_ptr<slam::PointCloudData>> current_point_clouds;
+    //
+    std::string viewport_name = "simple_plugin_viewport";
     // geometry params
     Eigen::Matrix4f camera_pose_mat = Eigen::Matrix4f::Identity();
-    Eigen::Vector2f start_mouse_pos;
 };
 
 

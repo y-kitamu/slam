@@ -35,14 +35,13 @@ void main() {
 #version 440
 precision mediump float;
 
-unifrom vec4 uColor;
+uniform vec4 uColor;
 
 out vec4 outColor;
 
 void main() {
     outColor = uColor;
 }
-
 )SHADER";
 }
 

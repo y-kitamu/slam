@@ -89,7 +89,8 @@ void Viewer::initialize() {
 
 
 void Viewer::render() {
-    const pangolin::View& view = pangolin::Display("viewport").SetBounds(0.0f, 1.0f, 0.0f, 1.0f, 1.0);
+    const pangolin::View& view =
+        pangolin::Display("viewer_whole_viewport").SetBounds(0.0f, 1.0f, 0.0f, 1.0f);
 
     plugin->init();
 
@@ -108,6 +109,7 @@ void Viewer::render() {
         plugin->draw();
 
         view.Activate();
+
         renderImGui();
 
         // render imgui
