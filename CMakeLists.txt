@@ -62,6 +62,11 @@ find_package(OpenCV REQUIRED)
 # g2o
 set(g2o_ROOT ${EXTERNAL_DIR}/g2o/build/install)
 find_package(g2o REQUIRED)
+# pcl
+set(PCL_ROOT ${EXTERNAL_DIR}/pcl/build/install)
+find_package(PCL REQUIRED)
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 #
 include_directories(AFTER
   ${EIGEN3_INCLUDE_DIR}
@@ -71,6 +76,7 @@ include_directories(AFTER
   ${EXTERNAL_DIR}/imgui
   ${EXTERNAL_DIR}/imgui/backends
   ${g2o_ROOT}/include
+  ${PCL_INCLUDE_DIRS}
 )
 #
 set(EXTERNAL_LIBS
@@ -79,6 +85,7 @@ set(EXTERNAL_LIBS
   imgui
   ${OpenCV_LIBS}
   g2o::core g2o::solver_dense
+  ${PCL_LIBRARIES}
   CACHE INTERNAL "")
 
 if (${BUILD_SNIPPETS})

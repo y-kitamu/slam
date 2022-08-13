@@ -16,3 +16,6 @@
 [submodule "ext/g2o"]
 	path = ext/g2o
 	url = https://github.com/RainerKuemmerle/g2o.git
+[submodule "ext/pcl"]
+	path = ext/pcl
+	url = https://github.com/PointCloudLibrary/pcl.git
