@@ -78,7 +78,7 @@ set(EXTERNAL_LIBS
   fmt::fmt
   imgui
   ${OpenCV_LIBS}
-  g2o::core
+  g2o::core g2o::solver_dense
   CACHE INTERNAL "")
 
 if (${BUILD_SNIPPETS})
